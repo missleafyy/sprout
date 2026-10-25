@@ -1,0 +1,53 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Sprout Gallery</title>
+<style>
+  body { margin: 0; background: #2a2d36; color: #cfd3dc; font: 11px monospace; }
+  canvas { image-rendering: pixelated; display: block; }
+</style></head>
+<body>
+<canvas id="c"></canvas>
+<!-- ?only=player,tree  ?scale=4  ?bg=%2376c25e  -->
+<script src="../engine/core.js"></script>
+<script src="../engine/input.js"></script>
+<script src="../engine/art.js"></script>
+<script src="../engine/font.js"></script>
+<script src="../engine/audio.js"></script>
+<script src="../engine/ui.js"></script>
+<script src="../engine/world.js"></script>
+<script src="../game/palette.js"></script>
+<script src="../game/art_tiles.js"></script>
+<script src="../game/art_props.js"></script>
+<script src="../game/art_interior.js"></script>
+<script src="../game/art_chars.js"></script>
+<script src="../game/art_battle.js"></script>
+<script>for (const f of (new URLSearchParams(location.search).get('load') || '').split(',').filter(Boolean)) document.write('<script src="../' + f + '"><\/script>');</script>
+<script>
+const S = Sprout, P = S.params;
+const k = +P.get('scale') || 3;
+const only = P.get('only') ? P.get('only').split(',') : null;
+const bg = P.get('bg') || '#76c25e';
+const W = +P.get('w') || 1500;
+const c = document.getElementById('c'), x = c.getContext('2d');
+const items = [];
+for (const [name, s] of Object.entries(S.sprites)) {
+  if (only && !only.some(o => name.startsWith(o))) continue;
+  for (const f of s.names) items.push({ name, f, s });
+}
+// lay out
+let cx = 10, cy = 10, rowH = 0; const pos = [];
+for (const it of items) {
+  const w = Math.max(it.s.w * k, 60), h = it.s.h * k + 14;
+  if (cx + w > W - 10) { cx = 10; cy += rowH + 10; rowH = 0; }
+  pos.push([cx, cy]); cx += w + 10; rowH = Math.max(rowH, h);
+}
+c.width = W; c.height = cy + rowH + 20;
+x.imageSmoothingEnabled = false;
+items.forEach((it, i) => {
+  const [px, py] = pos[i];
+  x.fillStyle = bg; x.fillRect(px, py, it.s.w * k, it.s.h * k);
+  const im = it.s.get(it.f);
+  if (im) x.drawImage(im, px, py, it.s.w * k, it.s.h * k);
+  x.fillStyle = '#cfd3dc'; x.fillText(it.name + '.' + it.f, px, py + it.s.h * k + 11);
+});
+</script>
+</body></html>

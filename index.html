@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sprout Town</title>
+<style>
+  :root { --s: 2; --shell: #e9f5db; --shell2: #cfe1b9; --shell3: #97a97c; --hinge: #b5c99a; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #16181f; overflow: hidden; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at 50% 40%, #2a2f3a 0%, #16181f 70%);
+    font: 12px/1.4 ui-monospace, monospace; color: #8a93a6;
+  }
+  #ds {
+    visibility: hidden;
+    display: flex; flex-direction: column; align-items: center;
+    padding: calc(14px * var(--s));
+    background: linear-gradient(180deg, var(--shell) 0%, var(--shell2) 100%);
+    border-radius: calc(10px * var(--s));
+    box-shadow: 0 calc(3px * var(--s)) 0 var(--shell3), 0 calc(8px * var(--s)) calc(24px * var(--s)) #0008;
+  }
+  .screen {
+    display: block; width: calc(256px * var(--s)); height: calc(192px * var(--s));
+    image-rendering: pixelated; image-rendering: crisp-edges;
+    background: #000;
+    outline: calc(3px * var(--s)) solid #23262e;
+    border-radius: 1px;
+  }
+  #hinge {
+    width: calc(256px * var(--s)); height: calc(18px * var(--s));
+    display: flex; align-items: center; justify-content: center; gap: calc(60px * var(--s));
+  }
+  #hinge i { display: block; width: calc(3px * var(--s)); height: calc(3px * var(--s)); border-radius: 50%; background: var(--shell3); }
+  #bottom { cursor: pointer; touch-action: none; }
+  #help {
+    position: fixed; left: 12px; top: 10px; opacity: .55;
+  }
+  #help b { color: #cfe1b9; font-weight: normal; }
+</style>
+</head>
+<body>
+<div id="ds">
+  <canvas id="top" class="screen"></canvas>
+  <div id="hinge"><i></i><i></i></div>
+  <canvas id="bottom" class="screen"></canvas>
+</div>
+<div id="help"><b>Arrows/WASD</b> move · <b>Z</b> A · <b>X</b> B (hold to run) · <b>Enter</b> Start · <b>Mouse</b> touch screen · <b>M</b> mute</div>
+
+<!-- engine -->
+<script src="engine/core.js"></script>
+<script src="engine/input.js"></script>
+<script src="engine/art.js"></script>
+<script src="engine/font.js"></script>
+<script src="engine/audio.js"></script>
+<script src="engine/ui.js"></script>
+<script src="engine/world.js"></script>
+<!-- game -->
+<script src="game/palette.js"></script>
+<script src="game/art_tiles.js"></script>
+<script src="game/art_props.js"></script>
+<script src="game/art_interior.js"></script>
+<script src="game/art_chars.js"></script>
+<script src="game/art_battle.js"></script>
+<script src="game/music.js"></script>
+<script src="game/maps.js"></script>
+<script src="game/battle.js"></script>
+<script src="game/main.js"></script>
+</body>
+</html>
