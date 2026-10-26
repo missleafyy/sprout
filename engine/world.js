@@ -98,6 +98,7 @@ const world = S.world = {
     const def = S.maps[name];
     if (!def) throw new Error('no map ' + name);
     const map = world.map = def;
+    world.mapId = name;
     world.rows = def.rows.length;
     world.cols = Math.max(...def.rows.map(r => r.length));
     world.cells = []; world.propList = []; world.fx = [];
@@ -144,7 +145,7 @@ const world = S.world = {
   },
 
   cell(x, y) { return x < 0 || y < 0 || x >= world.cols || y >= world.rows ? null : world.cells[y * world.cols + x]; },
-  warpAt(x, y) { return (world.map.warps || []).find(w => w.x === x && w.y === y); },
+  warpAt(x, y) { return (world.map.warps || []).find(w => w.x === x && w.y === y && (!w.if || w.if())); },
   actorAt(x, y, except) {
     return world.actors.find(a => a !== except && a.visible && !a.hidden && ((a.x === x && a.y === y) || (a.moving && a.fromX === x && a.fromY === y)));
   },

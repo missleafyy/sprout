@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rhyolite Springs preview</title>
+<style>
+  html, body { margin: 0; background: #16181f; }
+  body { display: flex; flex-direction: column; align-items: center; padding-top: 48px; gap: 18px; }
+  .screen { width: 512px; height: 384px; image-rendering: pixelated; background: #000; }
+</style>
+</head>
+<body>
+<canvas id="top" class="screen"></canvas>
+<canvas id="bottom" class="screen"></canvas>
+<script src="../engine/core.js"></script>
+<script src="../engine/input.js"></script>
+<script src="../engine/art.js"></script>
+<script src="../engine/font.js"></script>
+<script src="../engine/audio.js"></script>
+<script src="../engine/ui.js"></script>
+<script src="../engine/world.js"></script>
+<script src="../game/palette.js"></script>
+<script src="../game/art_tiles.js"></script>
+<script src="../game/art_props.js"></script>
+<script src="../game/art_chars.js"></script>
+<script src="../cracky/palette.js"></script>
+<script src="../cracky/art_tiles.js"></script>
+<script src="../cracky/art_props.js"></script>
+<script src="../cracky/art_chars.js"></script>
+<script src="../cracky/art_ghost.js"></script>
+<script src="../cracky/art_below.js"></script>
+<script>
+(function () {
+const S = Sprout;
+
+// subtle moonlight wash so the street reads as night; sprites stay legible
+function night(g) {
+  g.camera(0, 0);
+  g.alpha(0.16, () => g.rect(0, 0, 256, 192, '#141a3a'));
+}
+
+S.map('gt_street', {
+  name: 'Rhyolite Springs', base: 'gt_dust', encounters: true, drawOver: night,
+  legend: {
+    '.': 'gt_dust', '"': 'gt_scrub',
+    '=': { terrain: 'gt_boardwalk', under: 'gt_dust' }, '#': { terrain: 'gt_road', under: 'gt_dust' },
+    'H': { prop: 'gt_hotel' }, 'C': { prop: 'gt_chapel' }, 'S': { prop: 'gt_saloon' },
+    'W': { prop: 'gt_wagon' }, 'P': { prop: 'gt_post' }, 'L': { prop: 'gt_lamp' }, 'O': { prop: 'gt_well' },
+    'g': { prop: 'gt_grave' }, '+': { prop: 'gt_cross' }, 'T': { prop: 'gt_tumble' },
+  },
+  rows: [
+    '""""""""..........""""""""""',
+    '""""""............."""""""""',
+    '""".........................',
+    '............................',
+    '..HHHHHH....CCCCC...SSSSS...',
+    '..HHHHHH....CCCCC...SSSSS...',
+    '..HHHHHH....CCCCC...SSSSS...',
+    '.L======...L=====L..=====L..',
+    '..======....=====...=====...',
+    '############################',
+    '############################',
+    '...WWW..PP..................',
+    '...WWW.......OO...T...g.+.g.',
+    '.............OO.............',
+    '..L...................+.g.+.',
+    '..."""""".........."".......',
+    '..""""""""........""""""""""',
+    '""""""""""""....""""""""""""',
+  ],
+  warps: [
+    { x: 4, y: 6, to: 'gt_hotel', tx: 4, ty: 7, face: 'up' },
+    { x: 14, y: 6, to: 'gt_chapel', tx: 6, ty: 11, face: 'up' },
+  ],
+});
+
+S.map('gt_chapel', {
+  name: 'The Chapel', base: 'gt_cfloor',
+  legend: {
+    '.': 'gt_cfloor', 'A': 'gt_cwallA', 'B': 'gt_cwallB', 'w': 'gt_cwin', '#': 'gt_edge',
+    '|': { terrain: 'gt_aisle', under: 'gt_cfloor' },
+    'p': { prop: 'gt_pew', under: 'gt_cfloor' }, 's': { prop: 'gt_stage' }, 'c': { prop: 'gt_candle' },
+  },
+  rows: [
+    '#AwAAAAAAAwA#',
+    '#BBBBBBBBBBB#',
+    '#.c.sssss.c.#',
+    '#...sssss...#',
+    '#.....|.....#',
+    '#.pp..|..pp.#',
+    '#.....|.....#',
+    '#.pp..|..pp.#',
+    '#.....|.....#',
+    '#.pp..|..pp.#',
+    '#c....|....c#',
+    '#.....|.....#',
+  ],
+  warps: [{ x: 6, y: 12, to: 'gt_street', tx: 14, ty: 7, face: 'down' }],
+});
+
+S.map('gt_hotel', {
+  name: 'Old Hotel', base: 'gt_cfloor',
+  legend: {
+    '.': 'gt_cfloor', 'A': 'gt_hwallA', 'B': 'gt_hwallB', '#': 'gt_edge',
+    'r': { terrain: 'gt_rug', under: 'gt_cfloor' },
+    'd': { prop: 'gt_desk' }, 'k': { prop: 'gt_clock' }, 'f': { prop: 'gt_deadplant' },
+  },
+  rows: [
+    '#AAAAAAA#',
+    '#BBBBBBB#',
+    '#k.ddd.f#',
+    '#.......#',
+    '#..rrr..#',
+    '#f.rrr..#',
+    '#..rrr..#',
+    '#.......#',
+  ],
+  warps: [{ x: 4, y: 8, to: 'gt_street', tx: 4, ty: 7, face: 'down' }],
+});
+
+S.map('bn_room', {
+  name: 'Below Nevada B1', base: 'bn_floor',
+  legend: {
+    '.': 'bn_floor', 'A': 'bn_wallA', 'B': 'bn_wallB', 'Y': 'bn_wallW', '#': 'bn_void',
+    '/': { terrain: 'bn_stripe', under: 'bn_floor' }, '%': { terrain: 'bn_grate', under: 'bn_floor' },
+    't': { prop: 'bn_tube' }, 'u': { prop: 'bn_tube2' }, 'c': { prop: 'bn_console' }, 'r': { prop: 'bn_rack' },
+    'x': { prop: 'bn_crate' }, 'e': { prop: 'bn_elevator' }, 'D': { prop: 'bn_bossdoor' },
+    'G': { prop: 'bn_generator', terrain: 'bn_grate', under: 'bn_floor' }, 'n': { prop: 'bn_banner', under: 'bn_wallB' },
+    'h': { prop: 'bn_chair' }, 'H': { prop: 'bn_hatchOpen' },
+  },
+  rows: [
+    'AAAAAAAAAAAAAAAAAA',
+    'AAAAAAAAAAAAAAAAAA',
+    'BBeeBBnnBDDDBYBBBB',
+    'r.........../....r',
+    'r..........///...t',
+    't..%%%%%%.......u.',
+    't..%GGGG%..cc....t',
+    'u..%GGGG%..h.....u',
+    '...%%%%%%........x',
+    '.........HH.....xx',
+    'x........HH.....xx',
+    '#////////////////#',
+  ],
+});
+
+S.world.player = new S.Actor({ id: 'player', sprite: 'carl' });
+const overworld = { update() { S.world.update(); }, draw(top, bot) { S.world.draw(top); bot.clear('#232a40'); } };
+const START = { gt_street: [14, 8, 'down'], gt_chapel: [6, 8, 'up'], gt_hotel: [4, 5, 'up'], bn_room: [10, 7, 'up'] };
+S.boot(() => {
+  S.state = { flags: {} };
+  S.go(overworld);
+  const m = S.params.get('map') || 'gt_street';
+  const [x, y, d] = START[m];
+  const qx = S.params.get('x'), qy = S.params.get('y');
+  S.world.load(m, qx ? +qx : x, qy ? +qy : y, d);
+});
+})();
+</script>
+</body>
+</html>

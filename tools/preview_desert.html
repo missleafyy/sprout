@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Desert preview</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #16181f; }
+  body { display: flex; align-items: center; justify-content: center; }
+  #ds { display: flex; flex-direction: column; align-items: center; gap: 36px; padding: 28px; background: #cfe1b9; border-radius: 20px; }
+  .screen { display: block; width: 512px; height: 384px; image-rendering: pixelated; background: #000; }
+</style>
+</head>
+<body>
+<div id="ds"><canvas id="top" class="screen"></canvas><canvas id="bottom" class="screen"></canvas></div>
+<script src="../engine/core.js"></script>
+<script src="../engine/input.js"></script>
+<script src="../engine/art.js"></script>
+<script src="../engine/font.js"></script>
+<script src="../engine/audio.js"></script>
+<script src="../engine/ui.js"></script>
+<script src="../engine/world.js"></script>
+<script src="../game/palette.js"></script>
+<script src="../game/art_tiles.js"></script>
+<script src="../game/art_props.js"></script>
+<script src="../game/art_chars.js"></script>
+<script src="../cracky/palette.js"></script>
+<script src="../cracky/art_tiles.js"></script>
+<script src="../cracky/art_props.js"></script>
+<script src="../cracky/art_chars.js"></script>
+<script src="../cracky/art_desert.js"></script>
+<script>
+(function () {
+const S = Sprout;
+S.recolor('rock_d', 'rock', { s: 'sd2' });
+S.prop('rock_d', { sprite: 'rock_d' });
+const L = {
+  '.': 'sand', '"': 'scrub',
+  'M': { terrain: 'dz_mesa', under: 'sand' },
+  '-': { terrain: 'dz_road', under: 'sand' }, '=': { terrain: 'dz_roadH', under: 'sand' }, '|': { terrain: 'dz_roadV', under: 'sand' },
+  'p': { terrain: 'lot', under: 'sand' },
+  'D': { prop: 'dz_diner' }, 'B': { prop: 'dz_litterbox' }, 'I': { prop: 'dz_inn' }, 'U': { prop: 'dz_bus', terrain: 'lot', under: 'sand' },
+  'W': { prop: 'dz_watertower' }, '4': { prop: 'dz_sign45' }, 'E': { prop: 'dz_signet' }, 't': { prop: 'dz_tumbleweed' },
+  'f': { prop: 'dz_fence' }, 'K': { prop: 'dz_car' }, 'L': { prop: 'lamp' }, 'C': { prop: 'cactus' }, 'R': { prop: 'rock_d' },
+};
+S.map('dz_town', { name: "Garf's", base: 'sand', legend: L, rows: [
+  'MMMMMMMMMMMMMM|||MMMMMMMMMMMMMM',
+  'MMMMMMMMMMMMMM|||MMMMMMMMMMMMMM',
+  'M..W.....C....|||E...""""...C.M',
+  'M..W..........|||...""""""....M',
+  'M.DDDDDD.BBBBB|||.IIIIII.....RM',
+  'M.DDDDDD.BBBBB|||.IIIIII......M',
+  'M.DDDDDD.BBBBB|||.IIIIII.L....M',
+  'M...pppp...pp.|||....pp.......M',
+  'M.L.pppp...pp.|||....pp..t....M',
+  '---------------------------------',
+  '=================================',
+  '---------------------------------',
+  'M....4....UUUUU.....ffffff....M',
+  'M..C......UUUUU.....KKK.......M',
+  'M....""""...........KKK...C...M',
+  'M...""""""....R.........""""..M',
+  'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM',
+]});
+const IL = {
+  'c': 'dz_checker', 'w': 'dz_wood', 'k': 'dz_carpet', 'm': 'dz_mat',
+  'A': 'dz_dwallA', 'a': 'dz_dwallB', 'n': 'dz_dwin', 'Q': 'dz_bwallA', 'q': 'dz_bwallB', 'G': 'dz_iwallA', 'g': 'dz_iwallB',
+  'b': { prop: 'dz_booth', under: 'dz_checker' }, 'r': { prop: 'dz_counter', under: 'dz_checker' }, 's': { prop: 'dz_stool', under: 'dz_checker' },
+  'j': { prop: 'dz_jukebox', under: 'dz_checker' },
+  'X': { prop: 'dz_bar', under: 'dz_wood' }, 'Y': { prop: 'dz_backbar', under: 'dz_wood' }, 'P': { prop: 'dz_pool', under: 'dz_wood' },
+  'N': { prop: 'dz_neoncat', under: 'dz_bwallB' }, 'l': { prop: 'dz_lamp', under: 'dz_wood' }, 'v': { prop: 'dz_stool', under: 'dz_wood' },
+  'd': { prop: 'dz_desk', under: 'dz_carpet' }, 'o': { prop: 'dz_poster', under: 'dz_iwallB' },
+};
+S.map('dz_diner_in', { name: "Garf's Diner", base: 'dz_checker', legend: IL, rows: [
+  'AAAAAAAAAAAAAA',
+  'annaanjaannaan',
+  'cccccccccccccc',
+  'bbcccrrrrrrccc',
+  'bbccccsssssccc',
+  'cccccccccccccc',
+  'bbcccccccccbbc',
+  'bbcccccccccbbc',
+  'ccccccmccccccc',
+]});
+S.map('dz_bar_in', { name: 'The Litter Box', base: 'dz_wood', legend: IL, rows: [
+  'QQQQQQQQQQQQQQ',
+  'qqNNqqYYYqqqqq',
+  'wwwwwwwwwwwwww',
+  'wwwwwwXXXwwwlw',
+  'wwwwwwvvvwwwww',
+  'wPPwwwwwwwwwww',
+  'wPPwwwwwwwwPPw',
+  'lwwwwwwwwwwPPw',
+  'wwwwwwmwwwwwww',
+]});
+S.map('dz_inn_in', { name: 'Little Green Inn', base: 'dz_carpet', legend: IL, rows: [
+  'GGGGGGGGGGGGGG',
+  'gggoggggggoggg',
+  'kkkkkkkkkkkkkk',
+  'kkkkkdddkkkkkk',
+  'kkkkkkkkkkkkkk',
+  'kkkkkkkkkkkkkk',
+  'kkkkkkkkkkkkkk',
+  'kkkkkkmkkkkkkk',
+]});
+const overworld = { update() { S.world.update(); }, draw(top, bot) { S.world.draw(top); bot.clear('#232a40'); } };
+S.boot(() => {
+  S.world.player = new S.Actor({ id: 'player', sprite: 'carl' });
+  S.state = { flags: {} };
+  S.go(overworld);
+  S.world.load(S.params.get('map') || 'dz_town', +(S.params.get('x') || 15), +(S.params.get('y') || 9), 'down');
+});
+})();
+</script>
+</body>
+</html>

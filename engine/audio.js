@@ -137,4 +137,6 @@ D('encounter', t => { for (let i = 0; i < 6; i++) t({ wave: 'square', f: i % 2 ?
 D('exclaim', t => { t({ wave: 'pulse25', f: 1568, dur: 0.06, vol: 0.08 }); t({ wave: 'pulse25', f: 2093, dur: 0.1, vol: 0.08, at: 0.06 }); });
 D('save', t => [784, 988, 1175, 1568].forEach((f, i) => t({ wave: 'triangle', f, dur: 0.12, vol: 0.2, at: i * 0.08 })));
 D('pop', t => t({ wave: 'sine', f: 600, f2: 1400, dur: 0.08, vol: 0.18 }));
+D('coin', t => { t({ wave: 'pulse25', f: 1319, dur: 0.06, vol: 0.08 }); t({ wave: 'pulse25', f: 1976, dur: 0.2, vol: 0.08, at: 0.06 }); });
+D('stamp', t => { t({ wave: 'noise', f: 600, filter: 'lowpass', dur: 0.12, vol: 0.4 }); t({ wave: 'triangle', f: 160, f2: 60, dur: 0.15, vol: 0.3 }); });
 })();

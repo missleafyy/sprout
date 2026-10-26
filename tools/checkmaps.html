@@ -1,0 +1,81 @@
+<!doctype html><meta charset="utf-8"><body>
+<script src="../engine/core.js"></script>
+<script src="../engine/input.js"></script>
+<script src="../engine/art.js"></script>
+<script src="../engine/font.js"></script>
+<script src="../engine/audio.js"></script>
+<script src="../engine/ui.js"></script>
+<script src="../engine/world.js"></script>
+<!-- shared Sprout art (tiles, Boo) -->
+<script src="../game/palette.js"></script>
+<script src="../game/art_tiles.js"></script>
+<script src="../game/art_props.js"></script>
+<script src="../game/art_chars.js"></script>
+<script src="../game/music.js"></script>
+<!-- Cracky -->
+<script src="../cracky/palette.js"></script>
+<script src="../cracky/art_tiles.js"></script>
+<script src="../cracky/art_props.js"></script>
+<script src="../cracky/art_chars.js"></script>
+<script src="../cracky/art_npcs.js"></script>
+<script src="../cracky/art_mons.js"></script>
+<script src="../cracky/mons_1.js"></script>
+<script src="../cracky/mons_2.js"></script>
+<script src="../cracky/mons_3.js"></script>
+<script src="../cracky/art_mall.js"></script>
+<script src="../cracky/art_desert.js"></script>
+<script src="../cracky/art_ghost.js"></script>
+<script src="../cracky/art_below.js"></script>
+<script src="../cracky/music.js"></script>
+<script src="../cracky/music2.js"></script>
+<script src="../cracky/data.js"></script>
+<script src="../cracky/battle.js"></script>
+<script src="../cracky/story.js"></script>
+<script src="../cracky/main.js"></script>
+<script src="../cracky/maps.js"></script>
+<script src="../cracky/maps_mall.js"></script>
+<script src="../cracky/maps_desert.js"></script>
+<script src="../cracky/maps_ghost.js"></script>
+<script src="../cracky/maps_below.js"></script>
+
+<script>
+(function () {
+const S = Sprout, G = S.game, out = [];
+G.party = []; S.state = { flags: {}, stamps: [] };
+const log = m => { out.push(m); console.log('CHECK ' + m); };
+S.world.player = new S.Actor({ id: 'player', sprite: 'carl' });
+for (const [name, def] of Object.entries(S.maps)) {
+  const w = Math.max(...def.rows.map(r => r.length));
+  def.rows.forEach((r, i) => { if (r.length !== w) log(`${name}: row ${i} width ${r.length} != ${w}`); });
+  for (const r of def.rows) for (const ch of r) if (!(def.legend || {})[ch] && ch !== ' ') log(`${name}: no legend '${ch}'`);
+  try { S.world.load(name, 0, 0); } catch (e) { log(`${name}: load error ${e}`); continue; }
+  for (const a of (def.actors || [])) {
+    if (a.x == null) continue;
+    const c = S.world.cell(a.x, a.y);
+    if (!c) log(`${name}: actor ${a.id} off map`);
+    else if ((c.tile && c.tile.solid) || c.propSolid || (c.terrain && S.terrains[c.terrain].solid)) log(`${name}: actor ${a.id} at ${a.x},${a.y} inside something solid`);
+    if (!S.sprites[a.sprite]) log(`${name}: actor ${a.id} unknown sprite ${a.sprite}`);
+  }
+  for (const wp of (def.warps || [])) {
+    const t = S.maps[wp.to];
+    if (!t) { log(`${name}: warp to unknown ${wp.to}`); continue; }
+    const tw = Math.max(...t.rows.map(r => r.length));
+    if (wp.tx < 0 || wp.ty < 0 || wp.tx >= tw || wp.ty >= t.rows.length) log(`${name}: warp ${wp.x},${wp.y} -> ${wp.to} ${wp.tx},${wp.ty} out of bounds`);
+  }
+  for (const k of ['music']) if (def[k] && !S.songs[def[k]]) log(`${name}: unknown song ${def[k]}`);
+  for (const e of (def.wild || [])) if (!G.species[e[0]]) log(`${name}: unknown species ${e[0]}`);
+}
+// check warp arrivals land on walkable cells
+for (const [name, def] of Object.entries(S.maps)) for (const wp of (def.warps || [])) {
+  if (!S.maps[wp.to]) continue;
+  S.world.load(wp.to, 0, 0);
+  const c = S.world.cell(wp.tx, wp.ty);
+  if (c && ((c.tile && c.tile.solid) || c.propSolid || (c.terrain && S.terrains[c.terrain].solid))) log(`${name}: warp arrival ${wp.to} ${wp.tx},${wp.ty} is solid`);
+}
+for (const sp of Object.keys(G.species)) for (const v of ['_front', '_back']) if (!S.sprites[sp + v]) log('missing sprite ' + sp + v);
+for (const sp of Object.values(G.species)) for (const [, m] of sp.learn) if (!G.moves[m]) log('unknown move ' + m);
+log('done, ' + Object.keys(S.maps).length + ' maps');
+document.body.textContent = out.join('\n');
+})();
+</script>
+</body>

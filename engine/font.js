@@ -116,6 +116,9 @@ const COLORS = {
   white: ['#f8f8f8', '#4a4a5a'],
   gray: ['#9a9aa8', '#e2e2e8'],
   dark: ['#2a2834', '#8a8a96'],
+  yellow: ['#c88a10', '#f8e0a0'],
+  pink: ['#d8508a', '#f8c8dc'],
+  purple: ['#7a50c8', '#d8c8f8'],
 };
 
 const cache = {};

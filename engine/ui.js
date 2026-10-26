@@ -146,7 +146,7 @@ const ui = S.ui = {
     });
     // touch buttons on the bottom screen
     bot.alpha(0.55, () => bot.rect(0, 0, 256, 192, '#101018'));
-    const bh = 36, gap = 8, total = m.options.length * (bh + gap) - gap;
+    const n = m.options.length, gap = n > 4 ? 4 : 8, bh = Math.min(36, Math.floor((184 - (n - 1) * gap) / n)), total = n * (bh + gap) - gap;
     m.options.forEach((o, i) => {
       if (ui.button(bot, 40, 96 - total / 2 + i * (bh + gap), 176, bh, o, i === m.i ? 'blue' : 'gray', { selected: i === m.i }) && m.result == null) {
         m.i = i; m.result = i; S.sfx('select');

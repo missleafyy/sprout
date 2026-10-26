@@ -21,9 +21,14 @@ You wake up at home with your partner Sprig. Head outside, find Grandpa Moss by 
 ./play.sh cracky
 ```
 
-The Cracky universe (Pretend Co.) as a monster-catching game. You play Carl, a perfectly normal human courier, with Boo floating along as his partner. Old Face gives you a starter jar (Static Lamb, Lost Sock or Cassette Mite), HU-MAN challenges you, and the dry scrub around The Lot is full of Mall Rats, Courier Pigeons and Spam. Weaken a monster, then throw a Containment Jar. Lore notes live in `cracky/LORE.md`.
+The Cracky universe (Pretend Co.) as a full monster-catching game. You play Carl, a perfectly normal human courier, with Boo floating along as his partner. Carl's one undeliverable package, "TO: CARL'S PARENTS. STATUS: STILL IN TRANSIT", was last scanned Below Nevada, and the White Suits won't let anyone down without four Delivery Stamps.
 
-`cracky/` reuses the engine and the Sprout tiles; its battle system adds a party of six, switching, trainers, items and catching. Dev shortcuts: `cracky.html?map=lot&starter=sock&party=rat,spam` · `?battle=pigeon` · `?rival` · `?catchall` · `?noenc` · `?mute`.
+- **Route:** The Lot → Mall of the Future (CEO Linda, LIGHT) → Route 45 → Garf's (JB Garfield, DARK) → E.T. Highway → Rhyolite Springs (Spooky Ghost, CURSE) → Residences at Tomorrow (Yoko, SOUND) → the hatch (HU-MAN, one last time) → Below Nevada → the Head of Containment → ending and credits. Post-game: THE BEHOLDEN.
+- **Systems:** 23 monsters with evolutions, 7 types, about 40 moves, learnsets with a forget-a-move prompt, trainers with line of sight, gym stamps, PROP BUX and shops, the Lost & Found (PC box), the Boo-dex, a courier license, Sigil Chalk repel, Revive Tape, a battle background for each area, and blackouts back to the last rest stop.
+
+Story and design: `cracky/DESIGN.md`. Lore notes: `cracky/LORE.md`.
+
+Dev shortcuts: `cracky.html?map=garf&x=15&y=10&lv=20&starter=sock&party=rat,spam&stamps=2` · `?battle=pigeon&foelv=8&bg=mall` · `?rival` · `?evolve&lv=15` · `?credits` · `?catchall` · `?noenc` · `?mute`. `tools/checkmaps.html` checks every map (row widths, legend, warps, actors in walls).
 
 ## Folder layout
 
@@ -43,7 +48,7 @@ game/            the Sprout Town demo
   battle.js      the battle system
   music.js       songs
   main.js        title screen, bottom-screen "Sprout Pad", story
-cracky/          Cracky: Still in Transit (art, data, battle, maps, main, LORE.md)
+cracky/          Cracky: Still in Transit (art, monsters, data, battle, story, main, maps per area, music)
 tools/
   gallery.html   shows every sprite (?only=player,tree  ?scale=6  ?bg=%23333  ?load=cracky/palette.js,cracky/art_mons.js)
   shot.sh        headless screenshot + console errors (how Claude checks its work)

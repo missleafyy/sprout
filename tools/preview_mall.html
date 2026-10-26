@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mall preview</title>
+<style>
+  html, body { margin: 0; background: #16181f; }
+  #ds { display: inline-flex; flex-direction: column; gap: 8px; padding: 8px; }
+  .screen { width: calc(256px * var(--s)); height: calc(192px * var(--s)); image-rendering: pixelated; display: block; }
+  #big { image-rendering: pixelated; display: block; margin: 8px; }
+</style>
+</head>
+<body>
+<!-- ?map=plaza|gym|shop|food|lost|apt  &x=&y=  &big=2 renders the whole map at that scale instead -->
+<div id="ds">
+  <canvas id="top" class="screen"></canvas>
+  <canvas id="bottom" class="screen"></canvas>
+</div>
+<canvas id="big"></canvas>
+<script src="../engine/core.js"></script>
+<script src="../engine/input.js"></script>
+<script src="../engine/art.js"></script>
+<script src="../engine/font.js"></script>
+<script src="../engine/audio.js"></script>
+<script src="../engine/ui.js"></script>
+<script src="../engine/world.js"></script>
+<script src="../game/palette.js"></script>
+<script src="../game/art_tiles.js"></script>
+<script src="../game/art_chars.js"></script>
+<script src="../cracky/palette.js"></script>
+<script src="../cracky/art_chars.js"></script>
+<script src="../cracky/art_mall.js"></script>
+<script>
+(function () {
+const S = Sprout;
+
+// build rows from a blank fill, then stamp strings at (x, y)
+function grid(w, h, ch) { return Array.from({ length: h }, () => ch.repeat(w).split('')); }
+function put(g, x, y, s) { for (let i = 0; i < s.length; i++) if (s[i] !== ' ') g[y][x + i] = s[i]; }
+function box(g, x, y, w, h, ch) { for (let j = 0; j < h; j++) put(g, x, y + j, ch.repeat(w)); }
+const rows = g => g.map(r => r.join(''));
+
+// ---------------------------------------------------------------- the plaza
+const PLAZA = {
+  '.': 'plaza', 't': 'plaza_teal', '#': 'mwall', 'b': 'mwallb', '~': 'void',
+  '=': { terrain: 'runway', under: 'plaza' },
+  'P': { prop: 'store_prop', under: 'mwallb' }, 'F': { prop: 'store_food', under: 'mwallb' }, 'L': { prop: 'linda_corp', under: 'mwallb' },
+  'O': { prop: 'store_lost', under: 'mwallb' }, 'R': { prop: 'res_door', under: 'mwallb' },
+  'f': { prop: 'fountain' }, 's': { prop: 'statue' }, 'B': { prop: 'bench' }, 'e': { prop: 'escalator' },
+  'd': { prop: 'directory' }, 'p': { prop: 'planter' },
+};
+const pz = grid(34, 20, '.');
+put(pz, 0, 0, '~'.repeat(34));
+put(pz, 0, 1, '#'.repeat(34));
+for (const y of [2, 3, 4]) put(pz, 0, y, (y === 4 ? 'b' : '#') + 'PPPPP' + (y === 4 ? 'b' : '#') + 'FFFFF' + (y === 4 ? 'b' : '#') + 'LLLLLLL' + (y === 4 ? 'b' : '#') + 'OOOOO' + (y === 4 ? 'b' : '#') + 'RRRRR' + (y === 4 ? 'bb' : '##'));
+box(pz, 15, 5, 3, 14, '=');            // runway to LINDA CORP.
+box(pz, 2, 7, 30, 1, 't');             // teal promenade past the doors
+for (const x of [3, 9, 23, 29]) box(pz, x, 5, 1, 2, 't');
+box(pz, 15, 7, 3, 1, '=');
+put(pz, 6, 11, 'fff'); put(pz, 6, 12, 'fff');
+put(pz, 25, 11, 'fff'); put(pz, 25, 12, 'fff');
+put(pz, 19, 13, 'ss'); put(pz, 19, 14, 'ss');
+put(pz, 12, 9, 'd');
+put(pz, 3, 16, 'BB'); put(pz, 9, 16, 'BB'); put(pz, 23, 16, 'BB');
+put(pz, 30, 14, 'ee'); put(pz, 30, 15, 'ee'); put(pz, 30, 16, 'ee');
+for (const [x, y] of [[1, 5], [32, 5], [13, 5], [19, 5], [1, 18], [32, 18], [13, 18], [19, 18]]) put(pz, x, y, 'p');
+put(pz, 0, 19, '#'.repeat(15) + '...' + '#'.repeat(16));
+S.map('plaza', { name: 'Mall of the Future', base: 'plaza', bg: '#241a3c', legend: PLAZA, rows: rows(pz) });
+
+// ---------------------------------------------------------------- LINDA CORP. (gym)
+const GYM = {
+  '.': 'marble', '#': 'gwall', '=': { terrain: 'runway', under: 'marble' }, 'I': { prop: 'pillar' }, 'p': { prop: 'planter_g', under: 'marble' }, '+': 'marble_inlay',
+};
+const gy = grid(13, 15, '.');
+put(gy, 0, 0, '#'.repeat(13)); put(gy, 0, 1, '#'.repeat(13));
+box(gy, 5, 2, 3, 13, '=');
+for (const y of [4, 7, 10, 13]) { put(gy, 4, y, '+'); put(gy, 8, y, '+'); }
+for (const y of [3, 6, 9, 12]) { put(gy, 2, y, 'I'); put(gy, 10, y, 'I'); }
+put(gy, 0, 2, 'p'); put(gy, 12, 2, 'p');
+S.map('gym', { name: 'LINDA CORP.', base: 'marble', bg: '#0c0c12', run: false, legend: GYM, rows: rows(gy) });
+
+// ---------------------------------------------------------------- shop / lost & found / food court
+const SHOP = {
+  '.': 'plaza', 't': 'plaza_teal', '#': 'mwall', 'b': 'mwallb', 'C': { prop: 'counter' }, 'T': { prop: 'terminal' },
+  'H': { prop: 'ftable' }, 'p': { prop: 'planter' }, 'q': { prop: 'sadplant_m' }, 'B': { prop: 'bench' }, '=': { terrain: 'runway', under: 'plaza' },
+};
+S.map('shop', { name: 'PROP SHOP', base: 'plaza', bg: '#0c0c12', run: false, legend: SHOP, rows: [
+  '##########', 'bbbbbbbbbb', 'p........p', '.CCC......', '..........', '.......B B', '....tt....', '....tt....',
+] });
+S.map('lost', { name: 'LOST & FOUND', base: 'plaza', bg: '#0c0c12', run: false, legend: SHOP, rows: [
+  '########', 'bbbbbbbb', 'q.T..T.q', '........', '..CCC...', '........', '...tt...',
+] });
+S.map('food', { name: 'FOOD COURT', base: 'plaza', bg: '#0c0c12', run: false, legend: SHOP, rows: [
+  '############', 'bbbbbbbbbbbb', 'p...CCC....p', '............', '.HH.....HH..', '............', '.HH.=====HH.', '....=====...', '.....tt.....',
+] });
+
+// ---------------------------------------------------------------- Residences at Tomorrow
+const APT = {
+  '.': 'carpet', '#': 'awall', 'b': 'awallb',
+  '1': { prop: 'aptdoor1', under: 'awallb' }, '2': { prop: 'aptdoor2', under: 'awallb' }, '3': { prop: 'aptdoor3', under: 'awallb' },
+  '4': { prop: 'aptdoor3f', under: 'awallb' }, 'l': { prop: 'lamp_in' }, 'q': { prop: 'sadplant' },
+};
+S.map('apt', { name: 'Residences at Tomorrow', base: 'carpet', bg: '#0c0c12', run: false, legend: APT, rows: [
+  '############', 'b1bb2bb3bb4b', 'l..........q', '............', '............', 'q....l......', '............',
+] });
+
+// ---------------------------------------------------------------- boot
+const spawn = { plaza: [16, 15], gym: [6, 12], shop: [4, 6], lost: [3, 5], food: [6, 7], apt: [5, 4] };
+const scene = { update() { S.world.update(); }, draw(top) { S.world.draw(top); } };
+S.boot(() => {
+  S.world.player = new S.Actor({ id: 'player', sprite: 'carl' });
+  const m = S.params.get('map') || 'plaza', [sx, sy] = spawn[m];
+  S.go(scene);
+  S.world.load(m, +(S.params.get('x') || sx), +(S.params.get('y') || sy), 'up');
+  const big = +S.params.get('big');
+  if (big) {
+    // render the whole map once into #big (camera at 0,0, culling widened)
+    document.getElementById('ds').style.display = 'none';
+    setTimeout(() => {
+      const W = S.world.cols * 16, H = S.world.rows * 16, oW = S.W, oH = S.H;
+      S.W = W; S.H = H;
+      const c = document.getElementById('big'), g = new S.Gfx(c);
+      S.world.camLock = true; S.world.camX = 0; S.world.camY = 0;
+      S.world.draw(g);
+      S.W = oW; S.H = oH;
+      c.style.width = W * big + 'px'; c.style.height = H * big + 'px';
+    }, 300);
+  }
+});
+})();
+</script>
+</body>
+</html>
