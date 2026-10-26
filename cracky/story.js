@@ -122,6 +122,14 @@ G.humanBattle = () => G.startBattle({ trainer: {
     if (h) { for (let i = 0; i < 3; i++) { h.go('up', 2, true); yield () => !h.moving; } S.world.actors = S.world.actors.filter(a => a !== h); }
     yield* S.say('Carl! That was amazing. You were very... yourself.', BOO);
     yield* S.say('The {blue}Mall of the Future{/} is north. CEO Linda has the first stamp.', 'And the {green}dry scrub{/} is full of monsters. Weaken them, then throw a jar!', BOO);
+    // the White Suit at the mall gate steps aside (the map's actor list was built before the win)
+    const suit = S.world.actors.find(a => a.id === 'suit');
+    if (suit) {
+      suit.go('right', 1, true); yield () => !suit.moving;
+      suit.go('right', 1, true); yield () => !suit.moving;
+      suit.id = 'suit2'; suit.dir = 'left';
+      suit.talk = S.maps.lot.actors.find(a => a.id === 'suit2').talk;
+    }
   });
 });
 G.humanRematch = function* () {
